@@ -194,3 +194,6 @@ C:\Users\winte\OneDrive\Documentos\CRUD-CSharp\Desafio\obj\Debug\net8.0\refint\D
 C:\Users\winte\OneDrive\Documentos\CRUD-CSharp\Desafio\obj\Debug\net8.0\Desafio.pdb
 C:\Users\winte\OneDrive\Documentos\CRUD-CSharp\Desafio\obj\Debug\net8.0\Desafio.genruntimeconfig.cache
 C:\Users\winte\OneDrive\Documentos\CRUD-CSharp\Desafio\obj\Debug\net8.0\ref\Desafio.dll
+C:\Users\winte\OneDrive\Documentos\CRUD-CSharp\Desafio\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
+C:\Users\winte\OneDrive\Documentos\CRUD-CSharp\Desafio\bin\Debug\net8.0\Microsoft.Extensions.Hosting.Abstractions.dll
+C:\Users\winte\OneDrive\Documentos\CRUD-CSharp\Desafio\bin\Debug\net8.0\Microsoft.Extensions.ObjectPool.dll

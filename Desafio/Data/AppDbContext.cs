@@ -16,7 +16,7 @@ public class AppDbContext : DbContext
     {
         // Configuração do relacionamento muitos-para-muitos
         modelBuilder.Entity<CarrinhoItem>()
-            .HasKey(ci => new { ci.CarrinhoId, ci.ItemId });
+            .HasKey(ci => new { ci.CarrinhoId, ci.ItemId }); // Chave composta
 
         modelBuilder.Entity<CarrinhoItem>()
             .HasOne(ci => ci.Carrinho)
