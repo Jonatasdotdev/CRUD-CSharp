@@ -14,18 +14,20 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Configuração do relacionamento muitos-para-muitos
+        // Configuração do relacionamento muitos-para-muitos entre Carrinho e Item
         modelBuilder.Entity<CarrinhoItem>()
-            .HasKey(ci => new { ci.CarrinhoId, ci.ItemId }); // Chave composta
+            .HasKey(ci => new { ci.CarrinhoId, ci.ItemId }); // Definição da chave composta
 
         modelBuilder.Entity<CarrinhoItem>()
             .HasOne(ci => ci.Carrinho)
             .WithMany(c => c.ItensCarrinho)
-            .HasForeignKey(ci => ci.CarrinhoId);
+            .HasForeignKey(ci => ci.CarrinhoId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<CarrinhoItem>()
             .HasOne(ci => ci.Item)
             .WithMany()
-            .HasForeignKey(ci => ci.ItemId);
+            .HasForeignKey(ci => ci.ItemId)
+            .OnDelete(DeleteBehavior.Restrict); // Impede a exclusão de um item se ele estiver em um carrinho
     }
 }
