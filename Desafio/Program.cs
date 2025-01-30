@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Desafio.Data;
 
@@ -7,27 +10,43 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Adicionar serviços de controllers
+// Adicionar serviços ao container.
 builder.Services.AddControllers();
 
 // Configurar Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Configurar CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin() // Permite qualquer origem
+                   .AllowAnyMethod() // Permite qualquer método (GET, POST, etc.)
+                   .AllowAnyHeader(); // Permite qualquer cabeçalho
+        });
+});
+
 var app = builder.Build();
 
-// Configuração do pipeline HTTP
+// Configurar o pipeline de requisições HTTP.
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
 
-app.UseAuthorization(); // Se estiver usando autenticação/autorizações
+// Habilitar CORS
+app.UseCors("AllowAllOrigins");
 
-// Mapeia automaticamente os controllers
+app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();

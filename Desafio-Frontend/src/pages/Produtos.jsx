@@ -25,22 +25,38 @@ const Produtos = () => {
     const [nome, setNome] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Buscar produtos
     const fetchProdutos = async () => {
-        const response = await api.get('/api/Produto');
-        setProdutos(response.data);
+        try {
+            const response = await api.get('/api/Produto');
+            setProdutos(response.data); // Atualiza o estado com os produtos
+        } catch (error) {
+            console.error("Erro ao buscar produtos:", error);
+        }
     };
 
+    // Cadastrar produto
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await api.post('/api/Produto', { nome });
-        setNome('');
-        fetchProdutos();
+        try {
+            console.log("Enviando requisição POST...");
+            const response = await api.post('/api/Produto', { nome });
+            console.log("Resposta do servidor:", response.data);
+
+            // Limpa o campo de nome e atualiza a lista de produtos
+            setNome('');
+            await fetchProdutos(); // Chama fetchProdutos para atualizar a lista
+        } catch (error) {
+            console.error("Erro ao adicionar produto:", error.response?.data || error.message);
+        }
     };
 
+    // Filtrar produtos
     const filteredProdutos = produtos.filter(produto =>
         produto.nome.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Buscar produtos ao carregar a tela
     useEffect(() => {
         fetchProdutos();
     }, []);
@@ -84,7 +100,6 @@ const Produtos = () => {
                     />
                 </Toolbar>
             </AppBar>
-
 
             {/* Conteúdo Principal */}
             <Container sx={{ flexGrow: 1, mt: 4, maxWidth: '1200px', ml: 2 }}>

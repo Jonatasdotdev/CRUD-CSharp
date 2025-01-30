@@ -1,8 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Box, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    Paper, Button, TextField, Select, MenuItem, InputLabel, FormControl, Grid, Typography,
-    AppBar, Toolbar, IconButton
+    Container,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Button,
+    TextField,
+    Typography,
+    Box,
+    Grid,
+    AppBar,
+    Toolbar,
+    IconButton,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import api from '../services/api';
@@ -13,48 +30,55 @@ const Itens = () => {
     const [produtoId, setProdutoId] = useState('');
     const [quantidade, setQuantidade] = useState('');
     const [unidadeMedida, setUnidadeMedida] = useState('');
-    const [searchTerm, setSearchTerm] = useState(''); // Estado para o termo de busca
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Buscar itens e produtos
     const fetchData = async () => {
-        const [itensResponse, produtosResponse] = await Promise.all([
-            api.get('/api/Item'),
-            api.get('/api/Produto'),
-        ]);
-        setItens(itensResponse.data);
-        setProdutos(produtosResponse.data);
+        try {
+            const [itensResponse, produtosResponse] = await Promise.all([
+                api.get('/api/Item'),
+                api.get('/api/Produto'),
+            ]);
+            setItens(itensResponse.data);
+            setProdutos(produtosResponse.data);
+        } catch (error) {
+            console.error("Erro ao buscar dados:", error);
+        }
     };
 
     // Cadastrar item
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await api.post('/api/Item', { produtoId, quantidade, unidadeMedida });
-        setProdutoId('');
-        setQuantidade('');
-        setUnidadeMedida('');
-        fetchData();
+        try {
+            await api.post('/api/Item', { produtoId, quantidade, unidadeMedida });
+            setProdutoId('');
+            setQuantidade('');
+            setUnidadeMedida('');
+            fetchData();
+        } catch (error) {
+            console.error("Erro ao adicionar item:", error.response?.data || error.message);
+        }
     };
+
+    // Filtrar itens
+    const filteredItens = itens.filter(item =>
+        item.produto?.nome.toLowerCase().includes(searchTerm.toLowerCase()) // Verifica se item.produto existe
+    );
 
     useEffect(() => {
         fetchData();
     }, []);
 
-    // Filtrar os itens com base no termo de busca
-    const filteredItens = itens.filter(item =>
-        item.produto.nome.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     return (
         <Box sx={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#121212', color: 'white' }}>
-
             {/* Barra Superior */}
             <AppBar position="static" sx={{ backgroundColor: '#1F1B24', boxShadow: 3 }}>
-                <Toolbar>
+                <Toolbar sx={{ display: 'flex', alignItems: 'center' }}>
                     <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        Gerenciamento de Itens
+                        Sistema de Itens
                     </Typography>
                     {/* Barra de Pesquisa Alinhada */}
                     <TextField
@@ -85,28 +109,24 @@ const Itens = () => {
                 </Toolbar>
             </AppBar>
 
-            {/* Conteúdo Central */}
+            {/* Conteúdo Principal */}
             <Container sx={{ flexGrow: 1, mt: 4, maxWidth: '1200px', ml: 2 }}>
-
                 <Typography variant="h4" component="h1" gutterBottom sx={{ color: '#E0E0E0' }}>
                     Itens
                 </Typography>
 
-                {/* Campo de Busca */}
-                {/* O campo de busca agora está na barra superior, então não há necessidade de outro campo aqui. */}
-
-                {/* Formulário */}
+                {/* Formulário de Cadastro */}
                 <Paper elevation={3} sx={{ p: 3, mb: 4, borderRadius: 2, backgroundColor: '#272727' }}>
                     <Box component="form" onSubmit={handleSubmit}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={4}>
+                        <Grid container spacing={2} alignItems="center">
+                            <Grid item xs={12} sm={8}>
                                 <FormControl fullWidth sx={{ backgroundColor: '#333', borderRadius: 1 }}>
                                     <InputLabel sx={{ color: '#B0B0B0' }}>Produto</InputLabel>
                                     <Select
                                         value={produtoId}
                                         onChange={(e) => setProdutoId(e.target.value)}
-                                        required
                                         sx={{ color: 'white' }}
+                                        required
                                     >
                                         {produtos.map((produto) => (
                                             <MenuItem key={produto.id} value={produto.id}>
@@ -116,7 +136,6 @@ const Itens = () => {
                                     </Select>
                                 </FormControl>
                             </Grid>
-
                             <Grid item xs={12} sm={4}>
                                 <TextField
                                     fullWidth
@@ -128,7 +147,6 @@ const Itens = () => {
                                     sx={{ backgroundColor: '#333', borderRadius: 1, input: { color: 'white' }, label: { color: '#B0B0B0' } }}
                                 />
                             </Grid>
-
                             <Grid item xs={12} sm={4}>
                                 <TextField
                                     fullWidth
@@ -140,8 +158,7 @@ const Itens = () => {
                                     sx={{ backgroundColor: '#333', borderRadius: 1, input: { color: 'white' }, label: { color: '#B0B0B0' } }}
                                 />
                             </Grid>
-
-                            <Grid item xs={12}>
+                            <Grid item xs={12} sm={4}>
                                 <Button
                                     fullWidth
                                     type="submit"
@@ -149,7 +166,7 @@ const Itens = () => {
                                     size="large"
                                     sx={{ backgroundColor: '#388E3C', '&:hover': { backgroundColor: '#2E7D32' }, color: 'white' }}
                                 >
-                                    Adicionar
+                                    Adicionar Item
                                 </Button>
                             </Grid>
                         </Grid>
@@ -171,7 +188,7 @@ const Itens = () => {
                             {filteredItens.map((item) => (
                                 <TableRow key={item.id} sx={{ '&:nth-of-type(odd)': { backgroundColor: '#333' }, '&:hover': { backgroundColor: '#444' } }}>
                                     <TableCell sx={{ color: 'white' }}>{item.id}</TableCell>
-                                    <TableCell sx={{ color: 'white' }}>{item.produto.nome}</TableCell>
+                                    <TableCell sx={{ color: 'white' }}>{item.produto?.nome || 'N/A'}</TableCell> {/* Verifica se item.produto existe */}
                                     <TableCell sx={{ color: 'white' }}>{item.quantidade}</TableCell>
                                     <TableCell sx={{ color: 'white' }}>{item.unidadeMedida}</TableCell>
                                 </TableRow>

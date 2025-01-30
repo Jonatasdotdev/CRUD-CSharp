@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Produtos from './pages/Produtos';
 import Itens from './pages/Itens';
 import Carrinhos from './pages/Carrinhos';
+import Dashboard from './pages/Dashboard'; // Importando o Dashboard
 import { AppBar, Toolbar, Typography, Button } from '@mui/material';
 
 const App = () => {
@@ -23,8 +24,24 @@ const App = () => {
                             textTransform: 'none',
                             color: 'white',
                             '&:hover': {
-                                backgroundColor: '#1B5E20', // Verde mais escuro no hover
-                                color: '#E0E0E0', // Cinza claro no hover
+                                backgroundColor: '#1B5E20',
+                                color: '#E0E0E0',
+                            },
+                        }}
+                    >
+                        Dashboard
+                    </Button>
+                    <Button
+                        color="inherit"
+                        component={Link}
+                        to="/produtos"
+                        sx={{
+                            fontWeight: 'bold',
+                            textTransform: 'none',
+                            color: 'white',
+                            '&:hover': {
+                                backgroundColor: '#1B5E20',
+                                color: '#E0E0E0',
                             },
                         }}
                     >
@@ -39,8 +56,8 @@ const App = () => {
                             textTransform: 'none',
                             color: 'white',
                             '&:hover': {
-                                backgroundColor: '#1B5E20', // Verde mais escuro no hover
-                                color: '#E0E0E0', // Cinza claro no hover
+                                backgroundColor: '#1B5E20',
+                                color: '#E0E0E0',
                             },
                         }}
                     >
@@ -55,8 +72,8 @@ const App = () => {
                             textTransform: 'none',
                             color: 'white',
                             '&:hover': {
-                                backgroundColor: '#1B5E20', // Verde mais escuro no hover
-                                color: '#E0E0E0', // Cinza claro no hover
+                                backgroundColor: '#1B5E20',
+                                color: '#E0E0E0',
                             },
                         }}
                     >
@@ -67,7 +84,8 @@ const App = () => {
 
             {/* Conteúdo Central */}
             <Routes>
-                <Route path="/" element={<Produtos />} />
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/produtos" element={<Produtos />} />
                 <Route path="/itens" element={<Itens />} />
                 <Route path="/carrinhos" element={<Carrinhos />} />
             </Routes>

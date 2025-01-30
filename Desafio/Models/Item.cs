@@ -11,8 +11,8 @@ public class Item
     [Required]
     public int ProdutoId { get; set; } // Relacionamento com Produto
 
-    [JsonIgnore]
-    [ValidateNever] // Adicione esta linha
+
+
     public Produto Produto { get; set; } // Propriedade de navegação
 
     [Required]
