@@ -7,13 +7,13 @@ public class CarrinhoItem
 {
     public int CarrinhoId { get; set; } // Chave estrangeira para Carrinho
 
-    [JsonIgnore]
+
     [ValidateNever]
     public Carrinho Carrinho { get; set; } // Propriedade de navegação
 
     public int ItemId { get; set; } // Chave estrangeira para Item
 
-    [JsonIgnore]
+
     [ValidateNever]
     public Item Item { get; set; } // Propriedade de navegação
 }

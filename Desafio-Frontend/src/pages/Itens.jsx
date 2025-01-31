@@ -49,17 +49,33 @@ const Itens = () => {
     // Cadastrar item
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Verifica se todos os campos estão preenchidos
+        if (!produtoId || !quantidade || !unidadeMedida) {
+            alert("Preencha todos os campos antes de adicionar o item.");
+            return;
+        }
+
         try {
-            await api.post('/api/Item', { produtoId, quantidade, unidadeMedida });
+            console.log("Enviando requisição POST...");
+            const response = await api.post('/api/Item', {
+                produtoId: Number(produtoId), // Garante que é um número
+                quantidade: Number(quantidade), // Garante que é um número
+                unidadeMedida: unidadeMedida
+            });
+            console.log("Resposta do servidor:", response.data);
+
+            // Limpa os campos após o cadastro
             setProdutoId('');
             setQuantidade('');
             setUnidadeMedida('');
+
+            // Atualiza a lista de itens
             fetchData();
         } catch (error) {
             console.error("Erro ao adicionar item:", error.response?.data || error.message);
         }
     };
-
     // Filtrar itens
     const filteredItens = itens.filter(item =>
         item.produto?.nome.toLowerCase().includes(searchTerm.toLowerCase()) // Verifica se item.produto existe
@@ -188,7 +204,7 @@ const Itens = () => {
                             {filteredItens.map((item) => (
                                 <TableRow key={item.id} sx={{ '&:nth-of-type(odd)': { backgroundColor: '#333' }, '&:hover': { backgroundColor: '#444' } }}>
                                     <TableCell sx={{ color: 'white' }}>{item.id}</TableCell>
-                                    <TableCell sx={{ color: 'white' }}>{item.produto?.nome || 'N/A'}</TableCell> {/* Verifica se item.produto existe */}
+                                    <TableCell sx={{ color: 'white' }}>{item.produto?.nome || 'N/A'}</TableCell>
                                     <TableCell sx={{ color: 'white' }}>{item.quantidade}</TableCell>
                                     <TableCell sx={{ color: 'white' }}>{item.unidadeMedida}</TableCell>
                                 </TableRow>

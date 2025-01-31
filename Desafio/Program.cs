@@ -2,7 +2,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Desafio.Data;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +15,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Adicionar serviços ao container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.IgnoreNullValues = true;
+         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+
+
+    });
 
 // Configurar Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -23,9 +36,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAllOrigins",
         builder =>
         {
-            builder.AllowAnyOrigin() // Permite qualquer origem
-                   .AllowAnyMethod() // Permite qualquer método (GET, POST, etc.)
-                   .AllowAnyHeader(); // Permite qualquer cabeçalho
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
         });
 });
 

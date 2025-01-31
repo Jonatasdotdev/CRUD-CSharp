@@ -39,10 +39,22 @@ namespace Desafio.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Item item)
+        public IActionResult Post([FromBody] ItemDto itemDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            var produto = _context.Produtos.Find(itemDto.ProdutoId);
+            if (produto == null)
+                return BadRequest("Produto não encontrado.");
+
+            var item = new Item
+            {
+                ProdutoId = itemDto.ProdutoId,
+                Quantidade = itemDto.Quantidade,
+                UnidadeMedida = itemDto.UnidadeMedida,
+                Produto = produto
+            };
 
             _context.Itens.Add(item);
             _context.SaveChanges();

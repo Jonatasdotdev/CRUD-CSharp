@@ -52,6 +52,11 @@ public class ProdutoController : ControllerBase
     {
         var produto = _context.Produtos.Find(id);
         if (produto == null) return NotFound();
+
+
+        var itens = _context.Itens.Where(i => i.ProdutoId == id).ToList();
+        _context.Itens.RemoveRange(itens);
+
         _context.Produtos.Remove(produto);
         _context.SaveChanges();
         return NoContent();

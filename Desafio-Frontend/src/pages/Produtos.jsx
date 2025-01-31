@@ -51,6 +51,16 @@ const Produtos = () => {
         }
     };
 
+    // Remover produto
+    const handleDelete = async (id) => {
+        try {
+            await api.delete(`/api/Produto/${id}`);
+            await fetchProdutos(); // Atualiza a lista de produtos após a remoção
+        } catch (error) {
+            console.error("Erro ao remover produto:", error.response?.data || error.message);
+        }
+    };
+
     // Filtrar produtos
     const filteredProdutos = produtos.filter(produto =>
         produto.nome.toLowerCase().includes(searchTerm.toLowerCase())
@@ -144,6 +154,7 @@ const Produtos = () => {
                             <TableRow sx={{ backgroundColor: '#1F1B24' }}>
                                 <TableCell sx={{ color: '#E0E0E0', fontWeight: 'bold' }}>ID</TableCell>
                                 <TableCell sx={{ color: '#E0E0E0', fontWeight: 'bold' }}>Nome</TableCell>
+                                <TableCell sx={{ color: '#E0E0E0', fontWeight: 'bold' }}>Ações</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -151,6 +162,16 @@ const Produtos = () => {
                                 <TableRow key={produto.id} sx={{ '&:nth-of-type(odd)': { backgroundColor: '#333' }, '&:hover': { backgroundColor: '#444' } }}>
                                     <TableCell sx={{ color: 'white' }}>{produto.id}</TableCell>
                                     <TableCell sx={{ color: 'white' }}>{produto.nome}</TableCell>
+                                    <TableCell>
+                                        <Button
+                                            variant="contained"
+                                            color="error"
+                                            onClick={() => handleDelete(produto.id)}
+                                            sx={{ backgroundColor: '#D32F2F', '&:hover': { backgroundColor: '#C62828' }, color: 'white' }}
+                                        >
+                                            Remover
+                                        </Button>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import {
     Box, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Paper, Button, TextField, Select, MenuItem, InputLabel, FormControl, Typography,
-    AppBar, Toolbar, IconButton, Dialog, DialogTitle, DialogContent, DialogActions
+    AppBar, Toolbar, IconButton
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import AddIcon from '@mui/icons-material/Add';
 import api from '../services/api';
 
 const Carrinhos = () => {
@@ -13,16 +12,31 @@ const Carrinhos = () => {
     const [itens, setItens] = useState([]);
     const [selectedItems, setSelectedItems] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
-    const [openCreateDialog, setOpenCreateDialog] = useState(false);
-    const [newCarrinhoId, setNewCarrinhoId] = useState('');
 
     const fetchData = async () => {
-        const [carrinhosResponse, itensResponse] = await Promise.all([
-            api.get('/api/Carrinho'),
-            api.get('/api/Item'),
-        ]);
-        setCarrinhos(carrinhosResponse.data);
-        setItens(itensResponse.data);
+        try {
+            const [carrinhosResponse, itensResponse] = await Promise.all([
+                api.get('/api/Carrinho'),
+                api.get('/api/Item'),
+            ]);
+
+            console.log("Resposta da API (Carrinhos):", carrinhosResponse.data);
+            console.log("Resposta da API (Itens):", itensResponse.data);
+
+            // Verifica se a resposta é um array
+            if (Array.isArray(carrinhosResponse.data)) {
+                setCarrinhos(carrinhosResponse.data);
+            } else {
+                console.error("A resposta da API não é um array:", carrinhosResponse.data);
+                setCarrinhos([]); // Define como array vazio em caso de erro
+            }
+
+            setItens(itensResponse.data);
+        } catch (error) {
+            console.error("Erro ao buscar dados:", error);
+            setCarrinhos([]); // Define como array vazio em caso de erro
+            setItens([]);
+        }
     };
 
     const handleAddItem = async (carrinhoId) => {
@@ -33,7 +47,7 @@ const Carrinhos = () => {
         }
 
         try {
-            await api.post(`/api/Carrinho/${carrinhoId}/itens`, itemId, {
+            await api.post(`/api/Carrinho/${carrinhoId}/itens`, { itemId: itemId }, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -53,22 +67,21 @@ const Carrinhos = () => {
         fetchData();
     };
 
-    const handleDeleteCarrinho = async (carrinhoId) => {
+    const handleAddCarrinho = async () => {
         try {
-            await api.delete(`/api/Carrinho/${carrinhoId}`);
-            fetchData(); // Atualiza a lista de carrinhos após a exclusão
+            const response = await api.post('/api/Carrinho', {});
+            fetchData(); // Atualiza a lista de carrinhos após a criação
         } catch (error) {
-            console.error("Erro ao excluir carrinho:", error.response?.data || error.message);
+            console.error("Erro ao adicionar carrinho:", error.response?.data || error.message);
         }
     };
 
-    const handleCreateCarrinho = async () => {
+    const handleRemoveCarrinho = async (carrinhoId) => {
         try {
-            await api.post('/api/Carrinho', {});
-            fetchData();
-            setOpenCreateDialog(false);
+            await api.delete(`/api/Carrinho/${carrinhoId}`);
+            fetchData(); // Atualiza a lista de carrinhos após a remoção
         } catch (error) {
-            console.error("Erro ao criar carrinho:", error.response?.data || error.message);
+            console.error("Erro ao remover carrinho:", error.response?.data || error.message);
         }
     };
 
@@ -76,9 +89,13 @@ const Carrinhos = () => {
         fetchData();
     }, []);
 
-    const filteredCarrinhos = carrinhos.filter(carrinho =>
+    const filteredCarrinhos = (Array.isArray(carrinhos) ? carrinhos : []).filter(carrinho =>
         carrinho.id.toString().includes(searchTerm.toLowerCase())
     );
+
+    if (!carrinhos || !itens) {
+        return <Typography variant="h6" sx={{ color: '#E0E0E0' }}>Carregando...</Typography>;
+    }
 
     return (
         <Box sx={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#121212', color: 'white' }}>
@@ -108,14 +125,6 @@ const Carrinhos = () => {
                             marginLeft: '20px'
                         }}
                     />
-                    <Button
-                        variant="contained"
-                        startIcon={<AddIcon />}
-                        sx={{ ml: 2 }}
-                        onClick={() => setOpenCreateDialog(true)}
-                    >
-                        Criar Carrinho
-                    </Button>
                 </Toolbar>
             </AppBar>
 
@@ -123,6 +132,13 @@ const Carrinhos = () => {
                 <Typography variant="h4" component="h1" gutterBottom sx={{ color: '#E0E0E0' }}>
                     Carrinhos
                 </Typography>
+                <Button
+                    onClick={handleAddCarrinho}
+                    variant="contained"
+                    sx={{ backgroundColor: '#388E3C', '&:hover': { backgroundColor: '#2E7D32' }, color: 'white', mb: 2 }}
+                >
+                    Adicionar Carrinho
+                </Button>
 
                 <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2, backgroundColor: '#272727' }}>
                     <Table>
@@ -139,20 +155,23 @@ const Carrinhos = () => {
                                     <TableCell sx={{ color: 'white' }}>{carrinho.id}</TableCell>
                                     <TableCell sx={{ color: 'white' }}>
                                         <ul>
-                                            {carrinho.itensCarrinho.map((itemCarrinho) => (
-                                                <li key={itemCarrinho.itemId}>
-                                                    {itemCarrinho.item.produto.nome} - {itemCarrinho.item.quantidade} {itemCarrinho.item.unidadeMedida}
-                                                    <Button
-                                                        variant="contained"
-                                                        color="error"
-                                                        size="small"
-                                                        sx={{ ml: 2 }}
-                                                        onClick={() => handleRemoveItem(carrinho.id, itemCarrinho.itemId)}
-                                                    >
-                                                        Remover
-                                                    </Button>
-                                                </li>
-                                            ))}
+                                            {carrinho.itensCarrinho.map((itemCarrinho) => {
+                                                const produtoNome = itemCarrinho.item?.produto?.nome || "Produto Desconhecido";
+                                                return (
+                                                    <li key={itemCarrinho.itemId} style={{ marginBottom: '10px' }}> {/* Ajuste para espaçamento entre os itens */}
+                                                        {produtoNome} - {itemCarrinho.item?.quantidade} {itemCarrinho.item?.unidadeMedida}
+                                                        <Button
+                                                            variant="contained"
+                                                            color="error"
+                                                            size="small"
+                                                            sx={{ ml: 2, mb: 1 }} // Adicionando margin-bottom para o botão de remover
+                                                            onClick={() => handleRemoveItem(carrinho.id, itemCarrinho.itemId)}
+                                                        >
+                                                            Remover Item
+                                                        </Button>
+                                                    </li>
+                                                );
+                                            })}
                                         </ul>
                                     </TableCell>
                                     <TableCell>
@@ -182,13 +201,12 @@ const Carrinhos = () => {
                                             Adicionar Item
                                         </Button>
                                         <Button
-                                            onClick={() => handleDeleteCarrinho(carrinho.id)}
+                                            onClick={() => handleRemoveCarrinho(carrinho.id)}
                                             variant="contained"
                                             fullWidth
-                                            color="error"
                                             sx={{ backgroundColor: '#d32f2f', '&:hover': { backgroundColor: '#b71c1c' }, color: 'white' }}
                                         >
-                                            Excluir Carrinho
+                                            Remover Carrinho
                                         </Button>
                                     </TableCell>
                                 </TableRow>
@@ -197,26 +215,6 @@ const Carrinhos = () => {
                     </Table>
                 </TableContainer>
             </Container>
-
-            {/* Diálogo para criar novo carrinho */}
-            <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)}>
-                <DialogTitle>Criar Novo Carrinho</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="ID do Carrinho"
-                        type="number"
-                        fullWidth
-                        value={newCarrinhoId}
-                        onChange={(e) => setNewCarrinhoId(e.target.value)}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenCreateDialog(false)}>Cancelar</Button>
-                    <Button onClick={handleCreateCarrinho}>Criar</Button>
-                </DialogActions>
-            </Dialog>
         </Box>
     );
 };
